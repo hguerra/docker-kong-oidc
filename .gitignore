@@ -1,0 +1,6 @@
+.env
+.task/
+.dev/
+.tmp/
+bin/
+kong.yaml

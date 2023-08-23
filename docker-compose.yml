@@ -1,0 +1,33 @@
+version: "3.9"
+
+networks:
+  service_network:
+    external: false
+
+services:
+  # http://localhost:8080/
+  # http://localhost:8001/
+  kong:
+    container_name: kong_gateway
+    #image: heitorcarneiro/docker-kong-oidc:3.4.0-1
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    environment:
+      KONG_PLUGINS: bundled,oidc
+      KONG_LOG_LEVEL: info
+      KONG_X_SESSION_NAME: _atendimento_session
+      KONG_X_SESSION_COMPRESSOR: zlib
+    ports:
+      - "8080:8080"
+      - "8001:8001"
+      - "8100:8100"
+    networks:
+      - service_network
+    healthcheck:
+      test: ["CMD", "kong", "health"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    volumes:
+      - "./kong.yaml:/opt/kong/kong.yaml:rw"

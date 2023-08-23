@@ -1,0 +1,46 @@
+version: '3'
+
+vars:
+  BIN_DIR: '{{.USER_WORKING_DIR}}/bin'
+
+dotenv: ['.env']
+
+tasks:
+  download:
+    cmds:
+      - mkdir -p {{.BIN_DIR}}
+      - curl -L https://github.com/hguerra/envsubst/releases/download/v1.0.6/envsubst_linux_amd64 -o ./bin/envsubst && chmod +x ./bin/envsubst
+
+  clean:
+    cmds:
+      - rm -rf kong.yaml
+
+  config:
+    cmds:
+      - bin/envsubst -no-empty < config/kong-template.yaml > kong.yaml
+
+  build:
+    cmds:
+      - task: clean
+      - task: config
+      - docker build -t heitorcarneiro/docker-kong-oidc:3.4.0-1 .
+
+  push:
+    cmds:
+      - docker push heitorcarneiro/docker-kong-oidc:3.4.0-1
+
+  up:
+    cmds:
+      - docker compose up -d
+      - docker compose logs -f kong
+
+  down:
+    cmds:
+      - docker compose down
+
+  run:
+    cmds:
+      - task: down
+      - task: clean
+      - task: config
+      - task: up

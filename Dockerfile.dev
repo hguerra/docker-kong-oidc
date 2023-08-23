@@ -1,0 +1,13 @@
+FROM heitorcarneiro/docker-kong-oidc:3.4.0-1
+
+USER root
+
+ENV KONG_DECLARATIVE_CONFIG="/opt/kong/kong.yaml"
+ENV KONG_PLUGINS="bundled,oidc"
+ENV KONG_LOG_LEVEL="error"
+
+RUN mkdir -p /opt/kong
+COPY kong.yaml /opt/kong/kong.yaml
+RUN chown -R kong:kong /opt/kong
+
+USER kong
